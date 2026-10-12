@@ -18,6 +18,32 @@
 			--white: #fff;
 			--orange: #e87542;
 			--shadow: 0 14px 38px rgba(27, 57, 38, .08);
+			--surface: rgba(255, 255, 255, .94);
+			--surface-soft: rgba(255, 255, 255, .78);
+			--switch-bg: #e9ede3;
+			--soft-bg: #edf2e8;
+			--current-bg: #f4f8e9;
+			--grid-line: rgba(27, 57, 38, .035);
+			--hover-border: #aab9a7;
+		}
+
+		:root[data-theme="dark"] {
+			color-scheme: dark;
+			--ink: #e9efe9;
+			--muted: #a5b3a8;
+			--green: #183e2d;
+			--green-2: #285b40;
+			--paper: #111a15;
+			--line: #34453a;
+			--white: #202c24;
+			--surface: rgba(29, 42, 34, .97);
+			--surface-soft: rgba(29, 42, 34, .88);
+			--switch-bg: #26362c;
+			--soft-bg: #2a3b30;
+			--current-bg: #293a2a;
+			--grid-line: rgba(217, 234, 220, .045);
+			--hover-border: #667b6b;
+			--shadow: 0 14px 38px rgba(0, 0, 0, .22);
 		}
 
 		* { box-sizing: border-box; }
@@ -26,10 +52,11 @@
 			margin: 0;
 			color: var(--ink);
 			background-color: var(--paper);
-			background-image: linear-gradient(rgba(27, 57, 38, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(27, 57, 38, .035) 1px, transparent 1px);
+			background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
 			background-size: 28px 28px;
 			font-family: "Trebuchet MS", "Segoe UI", sans-serif;
 			min-height: 100vh;
+			transition: color 0.3s, background 0.3s;
 		}
 
 		button { font: inherit; }
@@ -50,8 +77,15 @@
 			font-size: 14px;
 		}
 
+		.topline-actions { display: flex; align-items: center; gap: 16px; }
 		.brand { display: flex; align-items: center; gap: 10px; color: var(--green); font-weight: 800; }
 		.brand-mark { width: 12px; height: 12px; border-radius: 3px 8px 3px 8px; background: var(--orange); transform: rotate(-12deg); }
+		.theme-toggle { display: inline-flex; align-items: center; gap: 9px; border: 1px solid var(--line); padding: 7px 10px; color: var(--ink); background: var(--surface); border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 700; }
+		.theme-toggle:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+		.theme-switch { position: relative; width: 31px; height: 18px; background: #bdc8b9; border-radius: 10px; transition: background .18s; }
+		.theme-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; background: #fff; border-radius: 50%; transition: transform .18s; }
+		:root[data-theme="dark"] .theme-switch { background: var(--green-2); }
+		:root[data-theme="dark"] .theme-switch::after { transform: translateX(13px); }
 
 		.hero {
 			position: relative;
@@ -108,7 +142,7 @@
 		}
 
 		.toolbar h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 25px; }
-		.mode-switch { display: flex; gap: 3px; padding: 4px; background: #e9ede3; border-radius: 7px; }
+		.mode-switch { display: flex; gap: 3px; padding: 4px; background: var(--switch-bg); border-radius: 7px; }
 		.mode-switch button { border: 0; padding: 9px 12px; color: var(--muted); background: transparent; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 700; transition: background .18s, color .18s; }
 		.mode-switch button[aria-pressed="true"] { color: var(--green); background: var(--white); box-shadow: 0 2px 7px rgba(23, 37, 29, .09); }
 
@@ -124,14 +158,14 @@
 			padding: 10px 12px;
 			border: 1px solid var(--line);
 			color: var(--ink);
-			background: rgba(255, 255, 255, .78);
+			background: var(--surface-soft);
 			border-radius: 6px;
 			text-align: left;
 			cursor: pointer;
 			transition: transform .18s, border-color .18s, background .18s;
 		}
 
-		.day-button:hover { transform: translateY(-2px); border-color: #aab9a7; }
+		.day-button:hover { transform: translateY(-2px); border-color: var(--hover-border); }
 		.day-button[aria-pressed="true"] { color: var(--white); background: var(--green-2); border-color: var(--green-2); }
 		.day-button span { display: block; font-size: 14px; font-weight: 800; text-transform: capitalize; }
 		.day-button small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
@@ -140,7 +174,7 @@
 
 		.schedule-panel {
 			overflow: hidden;
-			background: rgba(255, 255, 255, .94);
+			background: var(--surface);
 			border: 1px solid var(--line);
 			border-radius: 8px;
 			box-shadow: var(--shadow);
@@ -167,8 +201,8 @@
 		}
 
 		.lesson:last-child { border-bottom: 0; }
-		.lesson.current { background: #f4f8e9; box-shadow: inset 4px 0 var(--orange); }
-		.lesson-number { display: grid; place-items: center; width: 34px; height: 34px; color: var(--green); background: #edf2e8; border-radius: 50%; font-weight: 800; }
+		.lesson.current { background: var(--current-bg); box-shadow: inset 4px 0 var(--orange); }
+		.lesson-number { display: grid; place-items: center; width: 34px; height: 34px; color: var(--ink); background: var(--soft-bg); border-radius: 50%; font-weight: 800; }
 		.lesson-time { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 		.lesson-name { font-size: 15px; font-weight: 800; line-height: 1.3; }
 		.lesson-room { color: var(--muted); font-size: 13px; text-align: right; }
@@ -180,6 +214,8 @@
 		@media (max-width: 700px) {
 			.page { width: min(100% - 24px, 540px); padding: 20px 0 34px; }
 			.topline { margin-bottom: 16px; font-size: 12px; }
+			.topline-actions { flex-direction: column-reverse; align-items: flex-end; gap: 7px; }
+			.theme-toggle { padding: 6px 8px; font-size: 11px; }
 			.hero { grid-template-columns: 1fr; gap: 20px; padding: 25px 22px; }
 			.hero::after { right: -25px; top: -110px; }
 			.week-badge { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; padding: 12px 14px; }
@@ -208,12 +244,24 @@
 			*, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 		}
 	</style>
+	<script>
+		try {
+			if (localStorage.getItem("schedule-theme") === "dark") {
+				document.documentElement.dataset.theme = "dark";
+			}
+		} catch {}
+	</script>
 </head>
 <body>
 	<main class="page">
 		<div class="topline">
 			<div class="brand"><span class="brand-mark" aria-hidden="true"></span>CSAF · Расписание</div>
-			<time id="clock"></time>
+			<div class="topline-actions">
+				<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Тёмная тема" aria-pressed="false">
+					<span class="theme-switch" aria-hidden="true"></span><span id="theme-label">Тёмная тема</span>
+				</button>
+				<time id="clock"></time>
+			</div>
 		</div>
 
 		<section class="hero" aria-labelledby="page-title">
@@ -299,8 +347,29 @@
 		const selectedDayTitle = document.querySelector("#selected-day-title");
 		const selectedWeekLabel = document.querySelector("#selected-week-label");
 		const nowLabel = document.querySelector("#now-label");
+		const themeToggle = document.querySelector("#theme-toggle");
+		const themeLabel = document.querySelector("#theme-label");
 		let mode = "auto";
 		let selectedDay = 0;
+
+		function setTheme(theme, save = true) {
+			const isDark = theme === "dark";
+			document.documentElement.dataset.theme = isDark ? "dark" : "light";
+			themeToggle.setAttribute("aria-pressed", String(isDark));
+			themeToggle.setAttribute("aria-label", isDark ? "Светлая тема" : "Тёмная тема");
+			themeLabel.textContent = isDark ? "Светлая тема" : "Тёмная тема";
+			document.querySelector('meta[name="theme-color"]').content = isDark ? "#111a15" : "#123d2b";
+			if (save) {
+				try {
+					localStorage.setItem("schedule-theme", isDark ? "dark" : "light");
+				} catch {}
+			}
+		}
+
+		themeToggle.addEventListener("click", () => {
+			setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+		});
+		setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light", false);
 
 		function startOfWeek(date) {
 			const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
