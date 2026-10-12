@@ -2,307 +2,110 @@
 <html lang="ru">
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="theme-color" content="#123d2b">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<meta name="color-scheme" content="dark">
+	<meta name="theme-color" content="#0b0b0b">
 	<title>Расписание занятий</title>
 	<style>
 		:root {
-			color-scheme: light;
-			--ink: #17251d;
-			--muted: #68746d;
-			--green: #123d2b;
-			--green-2: #1f5a3d;
-			--lime: #d7ef80;
-			--paper: #f7f8f2;
-			--line: #e2e7dc;
-			--white: #fff;
-			--orange: #e87542;
-			--shadow: 0 14px 38px rgba(27, 57, 38, .08);
-			--surface: rgba(255, 255, 255, .94);
-			--surface-soft: rgba(255, 255, 255, .78);
-			--switch-bg: #e9ede3;
-			--soft-bg: #edf2e8;
-			--current-bg: #f4f8e9;
-			--grid-line: rgba(27, 57, 38, .035);
-			--hover-border: #aab9a7;
-		}
-
-		:root[data-theme="dark"] {
 			color-scheme: dark;
-			--ink: #e9efe9;
-			--muted: #a5b3a8;
-			--green: #183e2d;
-			--green-2: #285b40;
-			--paper: #111a15;
-			--line: #34453a;
-			--white: #eff6ef;
-			--surface: rgba(29, 42, 34, .97);
-			--surface-soft: rgba(29, 42, 34, .88);
-			--switch-bg: #26362c;
-			--soft-bg: #2a3b30;
-			--current-bg: #293a2a;
-			--grid-line: rgba(217, 234, 220, .045);
-			--hover-border: #667b6b;
-			--shadow: 0 14px 38px rgba(0, 0, 0, .22);
+			--bg: #0b0b0b;
+			--surface: #141414;
+			--raised: #1d1d1d;
+			--line: #2a2a2a;
+			--ink: #f2f2f2;
+			--muted: #8f8f8f;
+			--white: #fff;
+			--serif: Georgia, "Times New Roman", serif;
 		}
-
-		* { box-sizing: border-box; }
-
+		* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+		html { background: var(--bg); }
 		body {
 			margin: 0;
+			min-height: 100dvh;
 			color: var(--ink);
-			background-color: var(--paper);
-			background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+			background-color: var(--bg);
+			background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
 			background-size: 28px 28px;
-			font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-			min-height: 100vh;
-			transition: color 0.3s, background 0.3s;
+			font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
 		}
+		button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; touch-action: manipulation; }
+		button:focus-visible { outline: 2px solid var(--white); outline-offset: 2px; }
 
-		button { font: inherit; }
+		.page { width: min(100% - 28px, 640px); margin: 0 auto; padding: calc(18px + env(safe-area-inset-top)) 0 calc(36px + env(safe-area-inset-bottom)); }
 
-		.page {
-			width: min(100% - 40px, 1120px);
-			margin: 0 auto;
-			padding: 38px 0 56px;
-		}
+		.week { margin: 4px 2px 14px; }
+		.week small { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+		.week h1 { margin: 4px 0 0; font-family: var(--serif); font-size: 34px; line-height: 1.05; }
 
-		.topline {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			gap: 16px;
-			margin-bottom: 24px;
-			color: var(--muted);
-			font-size: 14px;
-		}
+		.mode { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 0 0 14px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+		.mode button { padding: 11px 0; border-radius: 10px; color: var(--muted); font-size: 14px; font-weight: 700; transition: background .15s, color .15s; }
+		.mode button[aria-pressed="true"] { color: #000; background: var(--white); }
 
-		.topline-actions { display: flex; align-items: center; gap: 16px; }
-		.brand { display: flex; align-items: center; gap: 10px; color: var(--green); font-weight: 800; }
-		.brand-mark { width: 12px; height: 12px; border-radius: 3px 8px 3px 8px; background: var(--orange); transform: rotate(-12deg); }
-		.theme-toggle { display: inline-flex; align-items: center; gap: 9px; border: 1px solid var(--line); padding: 7px 10px; color: var(--ink); background: var(--surface); border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 700; }
-		.theme-toggle:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
-		.theme-switch { position: relative; width: 31px; height: 18px; background: #bdc8b9; border-radius: 10px; transition: background .18s; }
-		.theme-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; background: #fff; border-radius: 50%; transition: transform .18s; }
-		:root[data-theme="dark"] .theme-switch { background: var(--green-2); }
-		:root[data-theme="dark"] .theme-switch::after { transform: translateX(13px); }
+		.days { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 0 -14px 14px; padding: calc(8px + env(safe-area-inset-top)) 14px 8px; background: linear-gradient(var(--bg) 80%, transparent); }
+		.day { position: relative; display: grid; gap: 3px; padding: 10px 0 9px; text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; transition: background .15s, transform .1s; }
+		.day:active { transform: scale(.96); }
+		.day span { font-size: 13px; font-weight: 800; color: var(--muted); }
+		.day b { font-family: var(--serif); font-size: 19px; line-height: 1; }
+		.day[aria-pressed="true"] { background: var(--white); border-color: var(--white); color: #000; }
+		.day[aria-pressed="true"] span { color: rgba(0,0,0,.55); }
+		.day.today::after { content: ""; position: absolute; top: 6px; right: 6px; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
-		.hero {
-			position: relative;
-			overflow: hidden;
-			display: grid;
-			grid-template-columns: 1fr auto;
-			align-items: center;
-			gap: 24px;
-			padding: 34px 38px;
-			color: var(--white);
-			background: var(--green);
-			border-radius: 8px;
-			box-shadow: var(--shadow);
-			animation: rise .5s ease-out both;
-		}
+		.panel { overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; }
+		.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+		.panel-head h2 { margin: 0; font-family: var(--serif); font-size: 24px; text-transform: capitalize; }
+		.panel-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+		.now { display: none; align-items: center; gap: 7px; padding: 7px 11px; color: #000; background: var(--white); border-radius: 20px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+		.now.on { display: inline-flex; }
+		.now i { width: 7px; height: 7px; border-radius: 50%; background: #000; animation: pulse 1.4s infinite; }
+		@keyframes pulse { 50% { opacity: .25; } }
 
-		.hero::after {
-			content: "";
-			position: absolute;
-			right: 145px;
-			top: -75px;
-			width: 240px;
-			height: 240px;
-			border: 1px solid rgba(215, 239, 128, .2);
-			border-radius: 50%;
-			box-shadow: 0 0 0 28px rgba(215, 239, 128, .05), 0 0 0 58px rgba(215, 239, 128, .035);
-			pointer-events: none;
-		}
-
-		.eyebrow { margin: 0 0 10px; color: var(--lime); font-size: 12px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
-		h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(30px, 5vw, 52px); line-height: 1.04; font-weight: 700; }
-		.hero-date { margin: 13px 0 0; color: rgba(255, 255, 255, .76); font-size: 15px; }
-
-		.week-badge {
-			z-index: 1;
-			min-width: 166px;
-			padding: 17px 19px;
-			color: var(--ink);
-			background: var(--lime);
-			border-radius: 6px;
-			text-align: left;
-		}
-
-		.week-badge small { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-		.week-badge strong { display: block; font-family: Georgia, "Times New Roman", serif; font-size: 25px; }
-		.week-badge span { display: block; margin-top: 5px; font-size: 12px; opacity: .7; }
-
-		.toolbar {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			gap: 18px;
-			margin: 26px 0 15px;
-		}
-
-		.toolbar h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 25px; }
-		.mode-switch { display: flex; gap: 3px; padding: 4px; background: var(--switch-bg); border-radius: 7px; }
-		.mode-switch button { border: 0; padding: 9px 12px; color: var(--muted); background: transparent; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 700; transition: background .18s, color .18s; }
-		.mode-switch button[aria-pressed="true"] { color: var(--green); background: var(--white); box-shadow: 0 2px 7px rgba(23, 37, 29, .09); }
-
-		.day-nav {
-			display: grid;
-			grid-template-columns: repeat(6, minmax(0, 1fr));
-			gap: 8px;
-			margin-bottom: 14px;
-		}
-
-		.day-button {
-			min-height: 62px;
-			padding: 10px 12px;
-			border: 1px solid var(--line);
-			color: var(--ink);
-			background: var(--surface-soft);
-			border-radius: 6px;
-			text-align: left;
-			cursor: pointer;
-			transition: transform .18s, border-color .18s, background .18s;
-		}
-
-		.day-button:hover { transform: translateY(-2px); border-color: var(--hover-border); }
-		.day-button[aria-pressed="true"] { color: var(--white); background: var(--green-2); border-color: var(--green-2); }
-		.day-button span { display: block; font-size: 14px; font-weight: 800; text-transform: capitalize; }
-		.day-button small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
-		.day-button[aria-pressed="true"] small { color: rgba(255, 255, 255, .7); }
-		.day-button.today:not([aria-pressed="true"]) { border-color: var(--orange); }
-
-		.schedule-panel {
-			overflow: hidden;
-			background: var(--surface);
-			border: 1px solid var(--line);
-			border-radius: 8px;
-			box-shadow: var(--shadow);
-			animation: rise .45s .08s ease-out both;
-		}
-
-		.panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 19px 22px; border-bottom: 1px solid var(--line); }
-		.panel-heading h3 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 21px; text-transform: capitalize; }
-		.panel-heading p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-		.now-label { display: none; align-items: center; gap: 7px; padding: 7px 10px; color: #874024; background: #fff0e8; border-radius: 20px; font-size: 12px; font-weight: 800; white-space: nowrap; }
-		.now-label.visible { display: inline-flex; }
-		.now-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
-
-		.lesson-list { list-style: none; margin: 0; padding: 0; }
-		.lesson {
-			display: grid;
-			grid-template-columns: 58px 120px 1fr auto;
-			align-items: center;
-			gap: 14px;
-			min-height: 74px;
-			padding: 12px 22px;
-			border-bottom: 1px solid var(--line);
-			transition: background .2s;
-		}
-
+		ol { list-style: none; margin: 0; padding: 0; }
+		.lesson { display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 14px; padding: 15px 20px; border-bottom: 1px solid var(--line); }
 		.lesson:last-child { border-bottom: 0; }
-		.lesson.current { background: var(--current-bg); box-shadow: inset 4px 0 var(--orange); }
-		.lesson-number { display: grid; place-items: center; width: 34px; height: 34px; color: var(--ink); background: var(--soft-bg); border-radius: 50%; font-weight: 800; }
-		.lesson-time { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-		.lesson-name { font-size: 15px; font-weight: 800; line-height: 1.3; }
-		.lesson-room { color: var(--muted); font-size: 13px; text-align: right; }
-		.empty-day { padding: 38px 22px; color: var(--muted); text-align: center; }
-		.footer-note { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; color: var(--muted); font-size: 12px; }
+		.num { display: grid; place-items: center; width: 38px; height: 38px; background: var(--raised); border-radius: 50%; font-family: var(--serif); font-size: 16px; font-weight: 700; }
+		.name { font-size: 17px; font-weight: 800; line-height: 1.25; }
+		.time { margin-top: 4px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+		.room { min-width: 52px; padding: 8px 10px; text-align: center; background: var(--raised); border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-weight: 800; }
+		.lesson.past { opacity: .4; }
+		.lesson.current { background: var(--raised); box-shadow: inset 4px 0 var(--white); }
+		.lesson.current .num { background: var(--white); color: #000; }
+		.lesson.current .room { background: var(--white); border-color: var(--white); color: #000; }
+		.empty { padding: 44px 20px; color: var(--muted); text-align: center; font-size: 16px; }
 
-		@keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
 
-		@media (max-width: 700px) {
-			.page { width: min(100% - 24px, 540px); padding: 20px 0 34px; }
-			.topline { margin-bottom: 16px; font-size: 12px; }
-			.topline-actions { flex-direction: column-reverse; align-items: flex-end; gap: 7px; }
-			.theme-toggle { padding: 6px 8px; font-size: 11px; }
-			.hero { grid-template-columns: 1fr; gap: 20px; padding: 25px 22px; }
-			.hero::after { right: -25px; top: -110px; }
-			.week-badge { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; padding: 12px 14px; }
-			.week-badge small { margin: 0; }
-			.week-badge strong { font-size: 20px; }
-			.week-badge span { margin: 0; }
-			.toolbar { align-items: flex-start; flex-direction: column; gap: 12px; margin-top: 23px; }
-			.toolbar h2 { font-size: 23px; }
-			.mode-switch { width: 100%; }
-			.mode-switch button { flex: 1; padding-inline: 7px; }
-			.day-nav { grid-template-columns: repeat(6, minmax(68px, 1fr)); gap: 6px; overflow-x: auto; margin-right: -12px; padding: 0 12px 5px 0; scrollbar-width: thin; }
-			.day-button { min-height: 57px; padding: 8px; }
-			.day-button span { font-size: 12px; }
-			.day-button small { font-size: 10px; }
-			.panel-heading { padding: 16px; }
-			.panel-heading h3 { font-size: 19px; }
-			.lesson { grid-template-columns: 34px 1fr auto; gap: 9px; min-height: 76px; padding: 12px 14px; }
-			.lesson-number { width: 30px; height: 30px; font-size: 13px; }
-			.lesson-time { grid-column: 2; grid-row: 2; font-size: 12px; }
-			.lesson-name { grid-column: 2; grid-row: 1; font-size: 14px; }
-			.lesson-room { grid-column: 3; grid-row: 1 / span 2; max-width: 78px; font-size: 11px; }
-			.footer-note { align-items: flex-start; flex-direction: column; }
-		}
-
-		@media (prefers-reduced-motion: reduce) {
-			*, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-		}
+		.rise { animation: rise .35s ease-out both; }
+		@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+		@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+		@media (min-width: 560px) { .name { font-size: 18px; } }
 	</style>
-	<script>
-		try {
-			if (localStorage.getItem("schedule-theme") === "dark") {
-				document.documentElement.dataset.theme = "dark";
-			}
-		} catch {}
-	</script>
 </head>
 <body>
 	<main class="page">
-		<div class="topline">
-			<div class="brand"><span class="brand-mark" aria-hidden="true"></span>CSAF · Расписание</div>
-			<div class="topline-actions">
-				<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Тёмная тема" aria-pressed="false">
-					<span class="theme-switch" aria-hidden="true"></span><span id="theme-label">Тёмная тема</span>
-				</button>
-				<time id="clock"></time>
-			</div>
+		<header class="week">
+			<small id="week-src">Сейчас</small>
+			<h1 id="week-name"></h1>
+		</header>
+
+		<div class="mode" role="group" aria-label="Выбор недели">
+			<button type="button" data-mode="auto" aria-pressed="true">Авто</button>
+			<button type="button" data-mode="odd" aria-pressed="false">Нечётная</button>
+			<button type="button" data-mode="even" aria-pressed="false">Чётная</button>
 		</div>
 
-		<section class="hero" aria-labelledby="page-title">
-			<div>
-				<p class="eyebrow">Учебный год 2026–2027</p>
-				<h1 id="page-title">Твоё расписание</h1>
-				<p class="hero-date" id="hero-date"></p>
-			</div>
-			<div class="week-badge" aria-live="polite">
-				<small>Сейчас</small>
-				<strong id="week-name">Нечётная</strong>
-				<span id="week-source">Автоопределение</span>
-			</div>
-		</section>
+		<nav class="days" id="days" aria-label="Дни недели"></nav>
 
-		<div class="toolbar">
-			<h2>Занятия по дням</h2>
-			<div class="mode-switch" role="group" aria-label="Выбор недели">
-				<button type="button" data-mode="auto" aria-pressed="true">Авто</button>
-				<button type="button" data-mode="odd" aria-pressed="false">Нечётная</button>
-				<button type="button" data-mode="even" aria-pressed="false">Чётная</button>
-			</div>
-		</div>
-
-		<nav class="day-nav" id="day-nav" aria-label="Дни недели"></nav>
-
-		<section class="schedule-panel" aria-live="polite">
-			<header class="panel-heading">
+		<section class="panel">
+			<header class="panel-head">
 				<div>
-					<h3 id="selected-day-title"></h3>
-					<p id="selected-week-label"></p>
+					<h2 id="day-title"></h2>
+					<p id="day-sub"></p>
 				</div>
-				<span class="now-label" id="now-label"><span class="now-dot" aria-hidden="true"></span>Идёт пара</span>
+				<span class="now" id="now"><i></i>Идёт пара</span>
 			</header>
-			<ol class="lesson-list" id="lesson-list"></ol>
+			<ol id="list" aria-live="polite"></ol>
 		</section>
 
-		<div class="footer-note">
-			<span>Учебная неделя считается от 1 сентября 2026 года: это нечётная неделя.</span>
-			<span>Время пар · 8:00–16:20</span>
-		</div>
 	</main>
 
 	<script>
@@ -340,148 +143,95 @@
 			]
 		};
 
-		const dayNav = document.querySelector("#day-nav");
-		const lessonList = document.querySelector("#lesson-list");
-		const weekName = document.querySelector("#week-name");
-		const weekSource = document.querySelector("#week-source");
-		const selectedDayTitle = document.querySelector("#selected-day-title");
-		const selectedWeekLabel = document.querySelector("#selected-week-label");
-		const nowLabel = document.querySelector("#now-label");
-		const themeToggle = document.querySelector("#theme-toggle");
-		const themeLabel = document.querySelector("#theme-label");
+
+		const $ = (s) => document.querySelector(s);
+		const starts = [480, 580, 690, 790, 890];
+		const ends = [570, 670, 780, 880, 980];
+		const fmt = (m) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
 		let mode = "auto";
 		let selectedDay = 0;
-
-		function setTheme(theme, save = true) {
-			const isDark = theme === "dark";
-			document.documentElement.dataset.theme = isDark ? "dark" : "light";
-			themeToggle.setAttribute("aria-pressed", String(isDark));
-			themeToggle.setAttribute("aria-label", isDark ? "Светлая тема" : "Тёмная тема");
-			themeLabel.textContent = isDark ? "Светлая тема" : "Тёмная тема";
-			document.querySelector('meta[name="theme-color"]').content = isDark ? "#111a15" : "#123d2b";
-			if (save) {
-				try {
-					localStorage.setItem("schedule-theme", isDark ? "dark" : "light");
-				} catch {}
-			}
-		}
-
-		themeToggle.addEventListener("click", () => {
-			setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
-		});
-		setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light", false);
 
 		function startOfWeek(date) {
 			const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 			monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
-			monday.setHours(0, 0, 0, 0);
 			return monday;
 		}
 
 		function getAcademicParity(date) {
 			const startYear = date.getMonth() >= 8 ? date.getFullYear() : date.getFullYear() - 1;
-			const firstAcademicWeek = startOfWeek(new Date(startYear, 8, 1));
-			const currentWeek = startOfWeek(date);
-			const elapsedWeeks = Math.round((currentWeek - firstAcademicWeek) / 604800000);
-			return Math.abs(elapsedWeeks) % 2 === 0 ? "odd" : "even";
+			const first = startOfWeek(new Date(startYear, 8, 1));
+			const elapsed = Math.round((startOfWeek(date) - first) / 604800000);
+			return Math.abs(elapsed) % 2 === 0 ? "odd" : "even";
 		}
 
-		function getParity() {
-			return mode === "auto" ? getAcademicParity(new Date()) : mode;
-		}
-
-		function formatDate(date) {
-			return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(date);
-		}
+		const getParity = () => mode === "auto" ? getAcademicParity(new Date()) : mode;
+		const todayIndex = () => (new Date().getDay() + 6) % 7;
 
 		function renderDays() {
-			const todayIndex = new Date().getDay();
-			const normalizedToday = todayIndex === 0 ? -1 : todayIndex - 1;
 			const monday = startOfWeek(new Date());
-			dayNav.innerHTML = days.map((day, index) => {
-				const dayDate = new Date(monday);
-				dayDate.setDate(monday.getDate() + index);
-				const isToday = index === normalizedToday;
-				return `<button type="button" class="day-button${isToday ? " today" : ""}" data-day="${index}" aria-pressed="${selectedDay === index}">
-					<span>${shortDays[index]}</span><small>${isToday ? "сегодня" : formatDate(dayDate).split(" ").slice(0, 2).join(" ")}</small>
-				</button>`;
+			$("#days").innerHTML = shortDays.map((d, i) => {
+				const date = new Date(monday);
+				date.setDate(monday.getDate() + i);
+				return `<button type="button" class="day${i === todayIndex() ? " today" : ""}" data-day="${i}" aria-pressed="${i === selectedDay}" aria-label="${days[i]}"><span>${d}</span><b>${date.getDate()}</b></button>`;
 			}).join("");
-			dayNav.querySelectorAll("button").forEach((button) => {
-				button.addEventListener("click", () => {
-					selectedDay = Number(button.dataset.day);
-					render();
-				});
-			});
 		}
 
-		function renderLessons() {
+		function renderList(animate) {
 			const parity = getParity();
-			const lessons = schedule[parity][selectedDay];
-			const todayIndex = new Date().getDay() - 1;
-			const isToday = selectedDay === todayIndex;
 			const now = new Date();
-			let currentPeriod = -1;
+			const minutes = now.getHours() * 60 + now.getMinutes();
+			const isToday = selectedDay === todayIndex();
+			const items = schedule[parity][selectedDay].map((subject, i) => subject && { subject, i }).filter(Boolean);
+			const current = isToday ? items.find(({ i }) => minutes >= starts[i] && minutes < ends[i]) : null;
 
-			if (isToday) {
-				const minutes = now.getHours() * 60 + now.getMinutes();
-				const starts = [480, 580, 690, 790, 890];
-				const ends = [570, 670, 780, 880, 980];
-				currentPeriod = starts.findIndex((start, index) => minutes >= start && minutes < ends[index]);
-			}
+			$("#day-title").textContent = days[selectedDay];
+			$("#day-sub").textContent = items.length ? `${fmt(starts[items[0].i])}–${fmt(ends[items.at(-1).i])}` : "";
+			$("#now").classList.toggle("on", Boolean(current));
 
-			selectedDayTitle.textContent = days[selectedDay];
-			selectedWeekLabel.textContent = `${parity === "odd" ? "Нечётная" : "Чётная"} неделя${mode === "auto" ? " · автоматически" : " · выбрана вручную"}`;
-			nowLabel.classList.toggle("visible", currentPeriod >= 0 && Boolean(lessons[currentPeriod]));
-
-			const available = lessons.map((subject, index) => subject ? { subject, index } : null).filter(Boolean);
-			if (available.length === 0) {
-				lessonList.innerHTML = '<li class="empty-day">На этот день занятий нет. Можно выдохнуть.</li>';
-				return;
-			}
-
-			lessonList.innerHTML = available.map(({ subject, index }) => {
-				const room = rooms[parity][selectedDay][index];
-				return `<li class="lesson${index === currentPeriod ? " current" : ""}">
-					<span class="lesson-number">${index + 1}</span>
-					<span class="lesson-time">${periods[index]}</span>
-					<span class="lesson-name">${subject}</span>
-					<span class="lesson-room">${room}</span>
+			const list = $("#list");
+			list.innerHTML = items.length ? items.map(({ subject, i }) => {
+				const room = rooms[parity][selectedDay][i];
+				const cls = current && current.i === i ? " current" : isToday && minutes >= ends[i] ? " past" : "";
+				return `<li class="lesson${cls}">
+					<span class="num">${i + 1}</span>
+					<div><div class="name">${subject}</div><div class="time">${periods[i]}</div></div>
+					${room ? `<span class="room">${room}</span>` : ""}
 				</li>`;
-			}).join("");
+			}).join("") : '<li class="empty">На этот день занятий нет</li>';
+			if (animate) { list.classList.remove("rise"); void list.offsetWidth; list.classList.add("rise"); }
 		}
 
-		function render() {
-			const parity = getParity();
-			weekName.textContent = parity === "odd" ? "Нечётная" : "Чётная";
-			weekSource.textContent = mode === "auto" ? "Автоопределение" : "Ручной выбор";
-			document.querySelectorAll("[data-mode]").forEach((button) => {
-				button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
-			});
-			dayNav.querySelectorAll("[data-day]").forEach((button) => {
-				button.setAttribute("aria-pressed", String(Number(button.dataset.day) === selectedDay));
-			});
-			renderLessons();
+		function render(animate = false) {
+			const now = new Date();
+			$("#week-name").textContent = (getParity() === "odd" ? "Нечётная" : "Чётная") + " неделя";
+			$("#week-src").textContent = mode === "auto" ? "Сейчас" : "Выбрано вручную";
+			document.querySelectorAll("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+			renderDays();
+			renderList(animate);
 		}
 
-		document.querySelectorAll("[data-mode]").forEach((button) => {
-			button.addEventListener("click", () => {
-				mode = button.dataset.mode;
-				render();
-			});
+		$("#days").addEventListener("click", (e) => {
+			const b = e.target.closest("[data-day]");
+			if (b) { selectedDay = +b.dataset.day; render(true); }
+		});
+		document.querySelector(".mode").addEventListener("click", (e) => {
+			const b = e.target.closest("[data-mode]");
+			if (b) { mode = b.dataset.mode; render(true); }
 		});
 
-		function updateDate() {
-			const now = new Date();
-			document.querySelector("#clock").textContent = new Intl.DateTimeFormat("ru-RU", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(now);
-			document.querySelector("#hero-date").textContent = `Сегодня · ${formatDate(now)}`;
-			renderDays();
-			render();
-		}
+		let sx = 0, sy = 0;
+		document.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+		document.addEventListener("touchend", (e) => {
+			const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+			if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+				selectedDay = Math.max(0, Math.min(5, selectedDay + (dx < 0 ? 1 : -1)));
+				render(true);
+			}
+		}, { passive: true });
 
-		const today = new Date().getDay();
-		selectedDay = today === 0 ? 0 : Math.min(today - 1, 5);
-		updateDate();
-		setInterval(updateDate, 30000);
+		selectedDay = todayIndex() > 5 ? 0 : todayIndex();
+		render();
+		setInterval(() => render(), 30000);
 	</script>
 </body>
 </html>
